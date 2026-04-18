@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Undangan Digital</title>
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+ 
+    <!-- ============================
+         LOGIN OVERLAY (Security Layer)
+         ============================ -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="sidebar-logo">Undangan<span>Digital</span></div>
+                <h2 id="loginTitle">Dashboard Terkunci</h2>
+                <p id="loginSubtitle">Silakan masukkan password untuk mengakses dashboard ini.</p>
+            </div>
+            <div class="login-body">
+                <div class="form-group">
+                    <input type="password" class="form-input" id="adminPasswordInput" placeholder="Masukkan password...">
+                </div>
+                <button class="btn btn-primary" id="btnLoginAdmin" style="width:100%; margin-top:16px; height:44px;">Buka Dashboard</button>
+            </div>
+            <div class="login-footer">
+                <p>Khusus admin client: <span id="loginClientIdDisplay"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE SIDEBAR TOGGLE -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Menu">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================
+         SIDEBAR
+         ============================ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">Undangan<span>Digital</span></div>
+            <div class="sidebar-tagline">Admin Panel</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-section="dashboard" id="navDashboard">
+                <span class="nav-item-icon">📊</span>
+                Dashboard
+            </button>
+            <button class="nav-item" data-section="wedding-info" id="navWeddingInfo">
+                <span class="nav-item-icon">💒</span>
+                Info Pernikahan
+            </button>
+            <button class="nav-item" data-section="guests" id="navGuests">
+                <span class="nav-item-icon">👥</span>
+                Daftar Tamu
+            </button>
+            <button class="nav-item" data-section="rsvp" id="navRsvp">
+                <span class="nav-item-icon">✅</span>
+                RSVP
+            </button>
+            <button class="nav-item" data-section="wishes" id="navWishes">
+                <span class="nav-item-icon">💬</span>
+                Ucapan
+            </button>
+            <button class="nav-item" data-section="gallery" id="navGallery">
+                <span class="nav-item-icon">🖼️</span>
+                Galeri
+            </button>
+            <button class="nav-item" data-section="story" id="navStory">
+                <span class="nav-item-icon">📜</span>
+                Love Story
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="index.html" target="_blank" id="sidebarPreviewLink">
+                <span>👁️</span>
+                Lihat Undangan
+            </a>
+        </div>
+    </aside>
+
+    <!-- ============================
+         MAIN CONTENT
+         ============================ -->
+    <div class="main-content">
+
+        <!-- HEADER -->
+        <header class="content-header">
+            <div>
+                <h1 class="content-title" id="pageTitle">Dashboard</h1>
+                <p class="content-subtitle" id="pageSubtitle">Ringkasan data undangan Anda</p>
+            </div>
+            <div class="btn-group">
+                <a href="index.html" target="_blank" class="btn btn-outline btn-sm" id="headerPreviewLink">👁️ Preview</a>
+            </div>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="content-body">
+
+            <!-- ========================
+                 PANEL: DASHBOARD
+                 ======================== -->
+            <div class="panel active" id="panel-dashboard">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statTotalGuests">0</div>
+                            <div class="stat-label">Total Tamu</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon gold">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statConfirmed">0</div>
+                            <div class="stat-label">Konfirmasi Hadir</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red">❌</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statDeclined">0</div>
+                            <div class="stat-label">Tidak Hadir</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">💬</div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="statWishes">0</div>
+                            <div class="stat-label">Ucapan Masuk</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ucapan Terbaru</h3>
+                    </div>
+                    <div class="card-body no-padding">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Kehadiran</th>
+                                        <th>Ucapan</th>
+                                        <th>Waktu</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentWishesBody">
+                                    <!-- dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: WEDDING INFO
+                 ======================== -->
+            <div class="panel" id="panel-wedding-info">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Edit Informasi Pernikahan</h3>
+                        <button class="btn btn-primary btn-sm" id="btnSaveWedding">💾 Simpan</button>
+                    </div>
+                    <div class="card-body">
+                        <form id="weddingInfoForm" class="form-grid">
+                            <!-- Groom -->
+                            <div class="form-section-title">🤵 Mempelai Pria</div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Lengkap + Gelar</label>
+                                <input type="text" class="form-input" id="wiGroomName" placeholder="Arya Pratama, S.T.">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Anak Ke-</label>
+                                <input type="text" class="form-input" id="wiGroomOrder" placeholder="Putra pertama dari">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Ayah</label>
+                                <input type="text" class="form-input" id="wiGroomFather" placeholder="Bapak Surya Pratama">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Ibu</label>
+                                <input type="text" class="form-input" id="wiGroomMother" placeholder="Ibu Ratna Dewi">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Instagram</label>
+                                <input type="text" class="form-input" id="wiGroomIg" placeholder="@aryapratama">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">URL Foto</label>
+                                <input type="url" class="form-input" id="wiGroomPhoto" placeholder="https://... atau assets/img/groom.png">
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Bride -->
+                            <div class="form-section-title">👰 Mempelai Wanita</div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Lengkap + Gelar</label>
+                                <input type="text" class="form-input" id="wiBrideName" placeholder="Kiara Azzahra, S.Pd.">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Anak Ke-</label>
+                                <input type="text" class="form-input" id="wiBrideOrder" placeholder="Putri kedua dari">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Ayah</label>
+                                <input type="text" class="form-input" id="wiBrideFather" placeholder="Bapak Fajar Hidayat">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Ibu</label>
+                                <input type="text" class="form-input" id="wiBrideMother" placeholder="Ibu Sari Wulandari">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Instagram</label>
+                                <input type="text" class="form-input" id="wiBrideIg" placeholder="@kiaraazzahra">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">URL Foto</label>
+                                <input type="url" class="form-input" id="wiBridePhoto" placeholder="https://... atau assets/img/bride.png">
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Event Akad -->
+                            <div class="form-section-title">💍 Akad Nikah</div>
+                            <div class="form-group">
+                                <label class="form-label">Tanggal & Waktu</label>
+                                <input type="datetime-local" class="form-input" id="wiAkadDate">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waktu Tampilan</label>
+                                <input type="text" class="form-input" id="wiAkadTime" placeholder="08:00 — 10:00 WIB">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Tempat</label>
+                                <input type="text" class="form-input" id="wiAkadVenue" placeholder="Masjid Istiqlal">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alamat</label>
+                                <input type="text" class="form-input" id="wiAkadAddress" placeholder="Jl. Taman Wijaya Kusuma, Jakarta Pusat">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Google Maps URL</label>
+                                <input type="url" class="form-input" id="wiAkadMap" placeholder="https://maps.google.com/...">
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Event Resepsi -->
+                            <div class="form-section-title">🎉 Resepsi</div>
+                            <div class="form-group">
+                                <label class="form-label">Tanggal & Waktu</label>
+                                <input type="datetime-local" class="form-input" id="wiResepsiDate">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waktu Tampilan</label>
+                                <input type="text" class="form-input" id="wiResepsiTime" placeholder="11:00 — 14:00 WIB">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nama Tempat</label>
+                                <input type="text" class="form-input" id="wiResepsiVenue" placeholder="Hotel Grand Ballroom">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alamat</label>
+                                <input type="text" class="form-input" id="wiResepsiAddress" placeholder="Jl. Sudirman No. 88, Jakarta Selatan">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Google Maps URL</label>
+                                <input type="url" class="form-input" id="wiResepsiMap" placeholder="https://maps.google.com/...">
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Bank / Gift -->
+                            <div class="form-section-title">💳 Amplop Digital</div>
+                            <div class="form-group">
+                                <label class="form-label">Bank 1 — Nama Bank</label>
+                                <input type="text" class="form-input" id="wiBank1Name" placeholder="Bank BCA">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bank 1 — Nomor Rekening</label>
+                                <input type="text" class="form-input" id="wiBank1Number" placeholder="1234567890">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Bank 1 — Atas Nama</label>
+                                <input type="text" class="form-input" id="wiBank1Holder" placeholder="Arya Pratama">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bank 2 — Nama Bank</label>
+                                <input type="text" class="form-input" id="wiBank2Name" placeholder="Bank BNI">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bank 2 — Nomor Rekening</label>
+                                <input type="text" class="form-input" id="wiBank2Number" placeholder="0987654321">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Bank 2 — Atas Nama</label>
+                                <input type="text" class="form-input" id="wiBank2Holder" placeholder="Kiara Azzahra">
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <!-- Extras -->
+                            <div class="form-section-title">✨ Lainnya</div>
+                            <div class="form-group full-width" style="margin-bottom: 15px;">
+                                <label class="form-label">URL Musik Latar (Opsional)</label>
+                                <input type="url" class="form-input" id="wiMusicUrl" placeholder="Contoh: assets/audio/lagu.mp3 atau link eksternal">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label">Ayat / Kutipan</label>
+                                <textarea class="form-textarea" id="wiQuoteText" rows="3" placeholder="Dan di antara tanda-tanda kekuasaan-Nya..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sumber Kutipan</label>
+                                <input type="text" class="form-input" id="wiQuoteSource" placeholder="— QS. Ar-Rum: 21">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hashtag</label>
+                                <input type="text" class="form-input" id="wiHashtag" placeholder="#AryaKiara2026">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: GUEST LIST
+                 ======================== -->
+            <div class="panel" id="panel-guests">
+                <!-- Add Guest -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Tambah Tamu</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="inline-form" id="addGuestForm">
+                            <div class="form-group">
+                                <label class="form-label">Nama Tamu</label>
+                                <input type="text" class="form-input" id="addGuestName" placeholder="Nama lengkap tamu">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">No. WhatsApp (opsional)</label>
+                                <input type="tel" class="form-input" id="addGuestPhone" placeholder="08123456789">
+                            </div>
+                            <button class="btn btn-primary" id="btnAddGuest" style="height: 42px;">➕ Tambah</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guest Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Tamu (<span id="guestCount">0</span>)</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm" id="btnExportGuests">📥 Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="card-body no-padding">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nama</th>
+                                        <th>WhatsApp</th>
+                                        <th>Link Undangan</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guestTableBody">
+                                    <!-- dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: RSVP
+                 ======================== -->
+            <div class="panel" id="panel-rsvp">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Data RSVP</h3>
+                        <div class="btn-group">
+                            <button class="btn btn-outline btn-sm" id="btnExportRsvp">📥 Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="card-body no-padding">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nama</th>
+                                        <th>Kehadiran</th>
+                                        <th>Jumlah Tamu</th>
+                                        <th>Ucapan</th>
+                                        <th>Waktu</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rsvpTableBody">
+                                    <!-- dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: WISHES
+                 ======================== -->
+            <div class="panel" id="panel-wishes">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ucapan & Doa (<span id="wishCount">0</span>)</h3>
+                        <button class="btn btn-danger btn-sm" id="btnClearAllWishes">🗑️ Hapus Semua</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="wishes-admin-list" id="wishesAdminList">
+                            <!-- dynamic -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: GALLERY
+                 ======================== -->
+            <div class="panel" id="panel-gallery">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Kelola Galeri</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="gallery-admin-grid" id="galleryAdminGrid">
+                            <!-- dynamic -->
+                            <div class="gallery-admin-add" id="btnAddPhoto">
+                                <span class="add-icon">➕</span>
+                                <span>Tambah Foto</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================
+                 PANEL: LOVE STORY (Luxury)
+                 ======================== -->
+            <div class="panel" id="panel-story">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Cerita Cinta (Milestones)</h3>
+                        <button class="btn btn-primary btn-sm" id="btnAddStory">➕ Tambah Momen</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="story-admin-list" id="storyAdminList">
+                            <!-- dynamic -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /content-body -->
+    </div><!-- /main-content -->
+
+    <!-- MODAL: Add Photo -->
+    <div class="modal-overlay" id="photoModal">
+        <div class="modal">
+            <h3 class="modal-title">Tambah Foto Galeri</h3>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">URL Foto</label>
+                <input type="url" class="form-input" id="modalPhotoUrl" placeholder="https://... atau path lokal">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Keterangan (opsional)</label>
+                <input type="text" class="form-input" id="modalPhotoAlt" placeholder="Deskripsi foto">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="btnCancelPhoto">Batal</button>
+                <button class="btn btn-primary" id="btnConfirmPhoto">Tambah</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add Story Milestone -->
+    <div class="modal-overlay" id="storyModal">
+        <div class="modal">
+            <h3 class="modal-title">Tambah Momen Cerita</h3>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">Tahun / Waktu</label>
+                <input type="text" class="form-input" id="modalStoryYear" placeholder="Contoh: 2020 atau Januari 2020">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">Judul Momen</label>
+                <input type="text" class="form-input" id="modalStoryTitle" placeholder="Contoh: Pertama Bertemu">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">URL Foto Momen</label>
+                <input type="url" class="form-input" id="modalStoryUrl" placeholder="https://... atau assets/img/story.png">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Deskripsi Cerita</label>
+                <textarea class="form-textarea" id="modalStoryDesc" rows="3" placeholder="Ceritakan singkat momen ini..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="btnCancelStory">Batal</button>
+                <button class="btn btn-primary" id="btnConfirmStory">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="admin-toast" id="adminToast"></div>
+
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

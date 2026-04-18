@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Invitation — Anastasia & Rizky</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 1. CINEMATIC TITLE CARD: First thing the user sees -->
+  <div id="title-card" onclick="startCinematic()">
+    <div class="title-content">
+      <p id="guest-name-badge" style="font-family: 'Playfair Display', serif; font-size: 14px; color: #c9a84c; margin-bottom: 20px; opacity: 0; animation: fadeIn 2s forwards 0.5s; letter-spacing: 1px; line-height: 1.4;"></p>
+      <h1 class="main-title"><span id="title-groom">Anastasia</span> <span class="title-amp">&</span> <span id="title-bride">Rizky</span></h1>
+      <p class="title-tag" id="title-hashtag">The Wedding Adventure</p>
+      <div id="title-quote-container" style="margin-top: 20px; padding: 0 40px; opacity: 0; animation: fadeIn 2s forwards 2.5s;">
+        <p id="title-quote" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(14px, 4vw, 18px); color: #7a4f2d; margin-bottom: 5px;"></p>
+        <p id="title-quote-source" style="font-family: 'Playfair Display', serif; font-size: 12px; color: #c9a84c;"></p>
+      </div>
+      <div class="title-prompt">✦ Tap to Begin ✦</div>
+    </div>
+  </div>
+  
+  <!-- SCENE WRAPPER -->
+  <div id="scene">
+
+    <!-- PAGE 1: DOOR TITLE SCREEN -->
+    <div id="page1">
+      <img src="door.png" alt="door" class="bg-img">
+      <div id="petals-layer"></div>
+      <div id="god-rays"></div>
+      
+      <!-- Ornamental Empty Board (Visual only now, or small subtitle) -->
+      <div id="door-sign" style="top: 68%;">
+        <div class="board-text" id="chapter-text">Chapter I</div>
+      </div>
+      
+      <!-- JRPG MENU SYSTEM -->
+      <div id="adventure-menu">
+        <button class="menu-item" onclick="enterRoom()">
+          <span class="menu-bullet">✦</span> Start Adventure
+        </button>
+        <button class="menu-item" onclick="showPopup('about')">
+          <span class="menu-bullet">✦</span> The Protagonists
+        </button>
+        <button class="menu-item" onclick="showPopup('rundown')">
+          <span class="menu-bullet">✦</span> The Quest Log
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE 2: ROOM INTERACTIVE -->
+    <div id="page2" class="hidden">
+      <!-- HUD Quest Log Button (Moved to top right) -->
+      <button id="rundown-btn" onclick="showPopup('rundown')">Quest Log</button>
+      
+      <!-- HUD Music Toggle Button (Top left) -->
+      <button id="music-btn" onclick="toggleMusic()">🎵 On</button>
+
+      <img src="bg2.jpeg" alt="room" class="bg-img">
+
+      <!-- HOTSPOT BADGES -->
+      <div class="hs" id="hs-date" style="top:24%; left:50%; transform:translateX(-50%)" onclick="showPopup('date')">
+        <div class="badge"><span class="b-title" id="hs-date-text">15 Okt 2026</span><span class="b-sub">Date & Venue</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-dress" style="top:48%; left:12%" onclick="showPopup('dress')">
+        <div class="badge"><span class="b-title">Dress Code</span><span class="b-sub">Busana & Nuansa</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-love" style="top:47%; right:14%" onclick="showPopup('love')">
+        <div class="badge"><span class="b-title">Love Story</span><span class="b-sub">Kisah Cinta</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-about" style="top:58%; left:50%; transform:translateX(-50%)" onclick="showPopup('about')">
+        <div class="badge"><span class="b-title">About Us</span><span class="b-sub">Tentang Kami</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-gallery" style="top:72%; left:15%" onclick="showPopup('gallery')">
+        <div class="badge"><span class="b-title">Gallery</span><span class="b-sub">Galeri Foto</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-rsvp" style="top:70%; right:12%" onclick="showPopup('rsvp')">
+        <div class="badge"><span class="b-title">RSVP ✉️</span><span class="b-sub">Konfirmasi Hadir</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+
+      <div class="hs" id="hs-gift" style="top:86%; left:50%; transform:translateX(-50%)" onclick="showPopup('gift')">
+        <div class="badge"><span class="b-title">Give 🎁</span><span class="b-sub">Kado & Tanda Kasih</span></div>
+        <div class="pulse-dot"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- POPUP OVERLAY -->
+  <div id="overlay" onclick="handleOverlayClick(event)">
+    <div id="popup-card">
+      <button id="popup-close" onclick="closePopup()">✕</button>
+      <div id="popup-icon"></div>
+      <h2 id="popup-title"></h2>
+      <div class="popup-divider"></div>
+      <div id="popup-body"></div>
+    </div>
+  </div>
+
+  <div id="transition-layer"></div>
+  <audio id="bg-music" loop preload="auto"></audio>
+  
+  <!-- Soft Promo Footer -->
+  <a href="https://instagram.com" target="_blank" class="promo-footer">
+    ✧ Created by <strong>UndanganDigital</strong>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
