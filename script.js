@@ -73,6 +73,35 @@ function syncCloudToUI(s) {
         const d = new Date(s.akadDate);
         dateBadge.innerText = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
     }
+
+    // Dynamic Meta Tags — update title & OG for proper WhatsApp/social preview
+    const groom = s.groomName ? s.groomName.split(' ')[0] : '';
+    const bride = s.brideName ? s.brideName.split(' ')[0] : '';
+    const params = new URLSearchParams(window.location.search);
+    const guestName = params.get('to');
+
+    if (groom && bride) {
+        const coupleName = `${bride} & ${groom}`;
+        const baseTitle = `Undangan Pernikahan — ${coupleName}`;
+        const personalTitle = guestName ? `Untuk ${guestName} — Undangan ${coupleName}` : baseTitle;
+        const desc = guestName 
+            ? `Hai ${guestName}, Anda diundang ke acara pernikahan ${coupleName}. Buka undangan digital ini untuk detail acara.`
+            : `Anda diundang ke acara pernikahan ${coupleName}. Buka undangan digital ini untuk melihat detail acara dan konfirmasi kehadiran.`;
+
+        document.title = personalTitle;
+        
+        const ogTitle = document.getElementById('og-title');
+        const ogDesc = document.getElementById('og-desc');
+        const twTitle = document.getElementById('tw-title');
+        const twDesc = document.getElementById('tw-desc');
+        const metaDesc = document.querySelector('meta[name="description"]');
+        
+        if (ogTitle) ogTitle.setAttribute('content', personalTitle);
+        if (ogDesc) ogDesc.setAttribute('content', desc);
+        if (twTitle) twTitle.setAttribute('content', personalTitle);
+        if (twDesc) twDesc.setAttribute('content', desc);
+        if (metaDesc) metaDesc.setAttribute('content', desc);
+    }
 }
 
 function updatePopupData(data, wishes) {

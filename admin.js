@@ -304,11 +304,17 @@ function loadDashboard() {
 /* --- Guest & RSVP Tables (Simplified) --- */
 function loadGuestTable() {
     const guests = getData('wedding_guests') || [];
+    const settings = getData('wedding_settings') || getDefaultSettings();
+    const bride = settings.brideName ? settings.brideName.split(' ')[0] : 'Mempelai';
+    const groom = settings.groomName ? settings.groomName.split(' ')[0] : 'Mempelai';
+    const coupleName = `${bride} & ${groom}`;
+    
     const tbody = document.getElementById('guestTableBody');
     document.getElementById('guestCount').textContent = guests.length;
     tbody.innerHTML = guests.map((g, i) => {
         const inviteLink = `${window.location.origin}/index.html?to=${encodeURIComponent(g.name)}`;
-        const waLink = g.phone ? `https://wa.me/${g.phone.replace(/^0/, '62')}?text=${encodeURIComponent(`Halo ${g.name}, kami mengundang Anda ke acara pernikahan kami. Buka undangan: ${inviteLink}`)}` : '#';
+        const waMessage = `Bismillahirrahmanirrahim.\nAssalamu'alaikum Warahmatullahi Wabarakatuh,\n\nKepada Yth. Bapak/Ibu/Saudara/i,\n*${g.name}*\n\nTanpa mengurangi rasa hormat, melalui pesan ini kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk turut hadir dan memberikan doa restu pada acara perayaan pernikahan kami:\n\n*${coupleName}*\n\nUntuk detail mengenai waktu, tempat pelaksanaan, serta informasi lainnya terkait acara kami, Bapak/Ibu/Saudara/i dapat mengakses tautan undangan digital kami di bawah ini:\n\n${inviteLink}\n\nMenjadi suatu kehormatan dan kebahagiaan yang sangat mendalam bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di hari bahagia tersebut.\n\nAtas kehadiran dan doa restunya, terima kasih yang sebesar-besarnya kami haturkan.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.`;
+        const waLink = g.phone ? `https://wa.me/${g.phone.replace(/^0/, '62')}?text=${encodeURIComponent(waMessage)}` : '#';
         
         return `<tr>
             <td>${i+1}</td>
