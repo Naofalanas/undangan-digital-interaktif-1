@@ -42,6 +42,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function startDashboard() {
+    // Ambil data SETELAH login berhasil
+    cloudDataCache = await fetchCloudData();
+    if (!cloudDataCache) {
+        alert("Gagal memuat data klien. Pastikan Anda memiliki akses.");
+        return;
+    }
+
     const headerTitle = document.getElementById('pageTitle');
     if (headerTitle) headerTitle.textContent = `Dashboard — ${CLIENT_ID}`;
 
@@ -75,15 +82,20 @@ async function fetchCloudData() {
 
         if (!invData) {
             console.warn(`[ADMIN] Client "${CLIENT_ID}" not found. Creating...`);
+            
+            // Ambil ID User yang sedang login
+            const { data: { user } } = await _supaAdmin.auth.getUser();
+            if (!user) throw new Error("Anda belum login.");
+
             const { data: newData, error: insErr } = await _supaAdmin
                 .from('wedding_invitations')
                 .insert({
                     client_id: CLIENT_ID,
+                    user_id: user.id, // Tautkan Klien dengan User ID ini
                     domain_origin: window.location.origin,
                     settings: getDefaultSettings(),
                     gallery: getDefaultGallery(),
-                    story: getDefaultStory(),
-                    admin_password: 'admin' // Default password for new setups
+                    story: getDefaultStory()
                 })
                 .select()
                 .single();
@@ -151,7 +163,8 @@ function getDefaultSettings() {
         quoteText: 'Two souls, one destiny. Our journey begins under the Ghibli sky.',
         quoteSource: '— Ghibli Memoir',
         hashtag: '#AnastasiaRizky2026',
-        musicUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'
+        musicUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+        waTemplate: "Bismillahirrahmanirrahim.\nAssalamu'alaikum Warahmatullahi Wabarakatuh,\n\nKepada Yth. Bapak/Ibu/Saudara/i,\n*[NAMA_TAMU]*\n\nTanpa mengurangi rasa hormat, melalui pesan ini kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk turut hadir dan memberikan doa restu pada acara perayaan pernikahan kami:\n\n*[NAMA_MEMPELAI]*\n\nUntuk detail mengenai waktu, tempat pelaksanaan, serta informasi lainnya terkait acara kami, Bapak/Ibu/Saudara/i dapat mengakses tautan undangan digital kami di bawah ini:\n\n[LINK_UNDANGAN]\n\nMenjadi suatu kehormatan dan kebahagiaan yang sangat mendalam bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di hari bahagia tersebut.\n\nAtas kehadiran dan doa restunya, terima kasih yang sebesar-besarnya kami haturkan.\nWassalamu'alaikum Warahmatullahi Wabarakatuh."
     };
 }
 
@@ -175,16 +188,29 @@ function initNavigation() {
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const section = item.dataset.section;
+            if (!section) return; // Prevent errors for items without data-section like Logout
+            
             navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
+            
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.getElementById(`panel-${section}`).classList.add('active');
+            const targetPanel = document.getElementById(`panel-${section}`);
+            if (targetPanel) targetPanel.classList.add('active');
+            
             if (section === 'dashboard') loadDashboard();
             if (section === 'rsvp') loadRSVPTable();
             if (section === 'guests') loadGuestTable();
             if (section === 'gallery') loadGalleryAdmin();
             if (section === 'story') loadStoryAdmin();
             if (section === 'wishes') loadWishesAdmin();
+            
+            // Auto-close sidebar on mobile
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('show');
+            }
         });
     });
 }
@@ -206,34 +232,57 @@ function initSidebar() {
 let cloudDataCache = null;
 async function initAuthSystem() {
     const btnLogin = document.getElementById('btnLoginAdmin');
-    cloudDataCache = await fetchCloudData();
-    const sessionKey = `admin_auth_${CLIENT_ID}`;
-    const savedPass = sessionStorage.getItem(sessionKey);
+    const btnLogout = document.getElementById('btnLogout');
+    
+    const { data: { session } } = await _supaAdmin.auth.getSession();
 
-    if (cloudDataCache?.admin_password && savedPass === cloudDataCache.admin_password) {
+    if (session) {
         hideLoginOverlay();
         startDashboard();
     } else {
         btnLogin.addEventListener('click', handleLogin);
     }
+    
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            btnLogout.innerHTML = `<span style="font-size: 1rem; width: 22px; text-align: center;">⏳</span> Keluar...`;
+            await _supaAdmin.auth.signOut();
+            showToast("👋 Berhasil keluar dari dashboard.");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1200);
+        });
+    }
 }
 
 async function handleLogin() {
+    const emailInput = document.getElementById('adminEmailInput');
     const passInput = document.getElementById('adminPasswordInput');
-    const pass = passInput.value.trim();
-    if (!pass) return;
+    const email = emailInput ? emailInput.value.trim() : '';
+    const pass = passInput ? passInput.value.trim() : '';
+    
+    if (!email || !pass) {
+        alert('Email dan Password wajib diisi!');
+        return;
+    }
 
-    if (!cloudDataCache || !cloudDataCache.admin_password) {
-        await _supaAdmin.from('wedding_invitations').update({ admin_password: pass }).eq('client_id', CLIENT_ID);
-        sessionStorage.setItem(`admin_auth_${CLIENT_ID}`, pass);
-        hideLoginOverlay();
-        startDashboard();
-    } else if (pass === cloudDataCache.admin_password) {
-        sessionStorage.setItem(`admin_auth_${CLIENT_ID}`, pass);
-        hideLoginOverlay();
-        startDashboard();
+    const btnLogin = document.getElementById('btnLoginAdmin');
+    const origText = btnLogin.textContent;
+    btnLogin.textContent = "Loading...";
+    btnLogin.disabled = true;
+
+    const { data, error } = await _supaAdmin.auth.signInWithPassword({
+        email: email,
+        password: pass
+    });
+
+    if (error) {
+        alert('Login Gagal: ' + error.message);
+        btnLogin.textContent = origText;
+        btnLogin.disabled = false;
     } else {
-        alert('Password Salah!');
+        hideLoginOverlay();
+        startDashboard();
     }
 }
 
@@ -308,12 +357,17 @@ function loadGuestTable() {
     const bride = settings.brideName ? settings.brideName.split(' ')[0] : 'Mempelai';
     const groom = settings.groomName ? settings.groomName.split(' ')[0] : 'Mempelai';
     const coupleName = `${bride} & ${groom}`;
+    const baseWaTemplate = settings.waTemplate || getDefaultSettings().waTemplate;
     
     const tbody = document.getElementById('guestTableBody');
     document.getElementById('guestCount').textContent = guests.length;
     tbody.innerHTML = guests.map((g, i) => {
         const inviteLink = `${window.location.origin}/index.html?to=${encodeURIComponent(g.name)}`;
-        const waMessage = `Bismillahirrahmanirrahim.\nAssalamu'alaikum Warahmatullahi Wabarakatuh,\n\nKepada Yth. Bapak/Ibu/Saudara/i,\n*${g.name}*\n\nTanpa mengurangi rasa hormat, melalui pesan ini kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk turut hadir dan memberikan doa restu pada acara perayaan pernikahan kami:\n\n*${coupleName}*\n\nUntuk detail mengenai waktu, tempat pelaksanaan, serta informasi lainnya terkait acara kami, Bapak/Ibu/Saudara/i dapat mengakses tautan undangan digital kami di bawah ini:\n\n${inviteLink}\n\nMenjadi suatu kehormatan dan kebahagiaan yang sangat mendalam bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di hari bahagia tersebut.\n\nAtas kehadiran dan doa restunya, terima kasih yang sebesar-besarnya kami haturkan.\nWassalamu'alaikum Warahmatullahi Wabarakatuh.`;
+        const waMessage = baseWaTemplate
+            .replace(/\[NAMA_TAMU\]/g, g.name)
+            .replace(/\[NAMA_MEMPELAI\]/g, coupleName)
+            .replace(/\[LINK_UNDANGAN\]/g, inviteLink);
+            
         const waLink = g.phone ? `https://wa.me/${g.phone.replace(/^0/, '62')}?text=${encodeURIComponent(waMessage)}` : '#';
         
         return `<tr>
@@ -474,7 +528,7 @@ function initWeddingInfoForm() {
         'resepsiDate', 'resepsiTime', 'resepsiVenue', 'resepsiAddress', 'resepsiMap',
         'bank1Name', 'bank1Number', 'bank1Holder',
         'bank2Name', 'bank2Number', 'bank2Holder',
-        'musicUrl', 'quoteText', 'quoteSource', 'hashtag'
+        'musicUrl', 'quoteText', 'quoteSource', 'hashtag', 'waTemplate'
     ];
 
     // Populate inputs from settings

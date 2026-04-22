@@ -363,11 +363,13 @@ input, select, textarea { font-family: inherit; }
         grid-template-columns: repeat(2, 1fr);
     }
     .form-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
     .form-grid .full-width,
     .form-section-title {
-        grid-column: span 1;
+        width: 100%;
     }
 }
 

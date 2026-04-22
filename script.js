@@ -5,6 +5,8 @@ let _supa = null;
 let CLIENT_ID = 'ghibli-demo';
 let cloudSettings = null;
 let cloudWishes = [];
+let currentGallery = [];
+let currentGalleryIndex = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
     initPetals();
@@ -25,6 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         _supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         CLIENT_ID = params.get('id') || 'ghibli-demo';
         await loadCloudData();
+    }
+    
+    // Hide preloader
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.classList.add('hidden');
+        setTimeout(() => preloader.remove(), 800);
     }
 });
 
@@ -185,8 +194,9 @@ function updatePopupData(data, wishes) {
         </div>` : ''}`;
 
     if (gallery.length > 0) {
+        currentGallery = gallery;
         popupData.gallery.html = `<div class="gallery-grid">` + 
-            gallery.map((img, idx) => `<div class="gallery-item" style="background-image:url('${img.url}'); background-size:cover; height:100px;" onclick="openLightbox('${img.url}', '${(img.alt || '').replace(/'/g, "\\'")}')"></div>`).join('') + 
+            gallery.map((img, idx) => `<div class="gallery-item" style="background-image:url('${img.url}'); background-size:cover; height:100px;" onclick="openLightbox(${idx})"></div>`).join('') + 
             `</div>`;
     }
 
@@ -403,21 +413,39 @@ function initLightbox() {
     lb.onclick = function(e) { if (e.target === lb) closeLightbox(); };
     lb.innerHTML = `
         <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <button class="lightbox-nav lightbox-prev" onclick="changeLightboxImage(-1)">❮</button>
         <img id="lightbox-img" src="" alt="">
+        <button class="lightbox-nav lightbox-next" onclick="changeLightboxImage(1)">❯</button>
         <div class="lightbox-caption" id="lightbox-caption"></div>
     `;
     document.body.appendChild(lb);
 }
 
-function openLightbox(url, caption) {
+function openLightbox(index) {
+    if (!currentGallery || currentGallery.length === 0) return;
+    currentGalleryIndex = index;
     initLightbox();
+    updateLightboxContent();
     const lb = document.getElementById('gallery-lightbox');
+    lb.classList.add('open');
+}
+
+function changeLightboxImage(direction) {
+    if (!currentGallery || currentGallery.length === 0) return;
+    currentGalleryIndex += direction;
+    if (currentGalleryIndex < 0) currentGalleryIndex = currentGallery.length - 1;
+    if (currentGalleryIndex >= currentGallery.length) currentGalleryIndex = 0;
+    updateLightboxContent();
+}
+
+function updateLightboxContent() {
     const img = document.getElementById('lightbox-img');
     const cap = document.getElementById('lightbox-caption');
-    img.src = url;
-    cap.textContent = caption || '';
-    cap.style.display = caption ? 'block' : 'none';
-    lb.classList.add('open');
+    const item = currentGallery[currentGalleryIndex];
+    if (!item) return;
+    img.src = item.url;
+    cap.textContent = item.alt || '';
+    cap.style.display = item.alt ? 'block' : 'none';
 }
 
 function closeLightbox() {
@@ -430,6 +458,12 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeLightbox();
         closePopup();
+    } else if (e.key === 'ArrowLeft') {
+        const lb = document.getElementById('gallery-lightbox');
+        if (lb && lb.classList.contains('open')) changeLightboxImage(-1);
+    } else if (e.key === 'ArrowRight') {
+        const lb = document.getElementById('gallery-lightbox');
+        if (lb && lb.classList.contains('open')) changeLightboxImage(1);
     }
 });
 

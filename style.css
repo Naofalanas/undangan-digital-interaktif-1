@@ -28,6 +28,48 @@ body {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a84c' d='M12 0l3 9h9l-7 5 3 10-8-6-8 6 3-10-7-5h9z'/%3E%3C/svg%3E") 12 12, auto;
 }
 
+/* PRELOADER */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background: var(--ivory);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+#preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(201, 168, 76, 0.2);
+  border-top: 4px solid var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+#preloader p {
+  font-family: 'Playfair Display', serif;
+  color: var(--wood);
+  font-size: 14px;
+  letter-spacing: 2px;
+  animation: startBlink 1.5s infinite alternate;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* 1. CINEMATIC TITLE CARD */
 #title-card {
   position: fixed;
@@ -422,6 +464,35 @@ body {
   background: rgba(255,255,255,0.15);
   border-color: #fff;
   transform: scale(1.1);
+}
+#gallery-lightbox .lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 9001;
+}
+#gallery-lightbox .lightbox-nav:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: #fff;
+  transform: translateY(-50%) scale(1.1);
+}
+#gallery-lightbox .lightbox-prev {
+  left: 20px;
+}
+#gallery-lightbox .lightbox-next {
+  right: 20px;
 }
 @keyframes lightboxIn {
   from { opacity: 0; transform: scale(0.85); }
